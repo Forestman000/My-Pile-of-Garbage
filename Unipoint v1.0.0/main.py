@@ -1,3 +1,4 @@
+
 file = open("input", "r")
 content = file.read()
 #print(content)
@@ -10,37 +11,49 @@ charmode = False
 temparray = []
 tempstring = ""
 tempstring2 = ""
-
+symbol = 0
 charset = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz \n,.\'\":;(){}[]=+-*/<>`!?|~%#@$&_"
 varlist = []
+add_string = "\033[36m"
+Econtent = ""
 
 for i in range(256):
     varlist.append("")
 
-# print(len(content))
+def error1():
+    print("\033[31mValue Error Found at symbol #", symbol, ". process terminated")
+    quit()
+
 
 while charnum < len(content):
     if content[charnum] == "(":
         charnum += 1
+        symbol += 1
         charmode = True
     if content[charnum] == ")":
         charnum += 1
+        symbol += 1
         charmode = False
     if content[charnum] == "+":
         pointer += 1
         charnum += 1
+        symbol += 1
     elif content[charnum] == ">":
         pointer += 10
         charnum += 1
+        symbol += 1
     elif content[charnum] == "-":
         pointer -= 1
         charnum += 1
+        symbol += 1
     elif content[charnum] == "<":
         pointer -= 10
         charnum += 1
+        symbol += 1
     elif content[charnum] == "/":
+        charnum += 1
+        symbol += 1
         if charmode == True:
-            charnum += 1
             if 1 <= pointer <= len(charset):
                 char = charset[pointer - 1]
             else:
@@ -48,19 +61,20 @@ while charnum < len(content):
             temparray.append(char)
             tempstring = "".join(temparray)
         elif charmode == False:
-            charnum += 1
             tempstring = "".join(temparray)
             temparray.append(varlist[pointer])
             print("variablised")
             print("t", tempstring)
     elif content[charnum] == "|":
-        charnum +=1
+        charnum += 1
+        symbol += 1
         tempstring2 = varlist[pointer]
         print("*", tempstring2)
         print("#", tempstring)
         print("v", varlist[pointer])
     elif content[charnum] == "@":
         charnum += 1
+        symbol += 1
         if pointer == 1:
             print(tempstring)
         if pointer == 2:
@@ -70,10 +84,11 @@ while charnum < len(content):
             tempstring2 = ""
             print("clear2")
         if pointer == 4:
-            if tempstring.isdigit():
+            try:
+                tempstring.isdigit()
                 int(tempstring)
-            else:
-                print("unable to convert non-numeric characters to integer")
+            except ValueError:
+                error1()
         if pointer == 5:
             ans = int(tempstring) + int(tempstring2)
             print(tempstring)
@@ -85,7 +100,10 @@ while charnum < len(content):
             print(tempstring2)
             print("a =", ans)
         if pointer == 7:
-            ans = int(tempstring) * int(tempstring2)
+            try:
+                ans = int(tempstring) * int(tempstring2)
+            except ValueError:
+                error1()
             print(tempstring)
             print(tempstring2)
             print("a =", ans)
@@ -96,7 +114,3 @@ while charnum < len(content):
     else:
         charnum += 1
         #print("*")
-
-
-if isinstance(tempstring, int):
-    pass
